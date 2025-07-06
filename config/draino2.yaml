@@ -1,0 +1,73 @@
+# draino2 Configuration
+# This file configures how draino2 monitors and drains nodes
+
+# Label triggers that will cause a node to be drained
+labelTriggers:
+  - key: "maintenance"
+    value: "true"
+  - key: "decommission"
+    value: "true"
+  - key: "drain"
+    value: "true"
+
+# Labels that will prevent a node from being drained
+excludeLabels:
+  - key: "critical"
+    value: "true"
+  - key: "protected"
+    value: "true"
+
+# Node conditions that will trigger automatic draining
+nodeConditions:
+  - type: "OutOfDisk"
+    status: "True"
+    minimumDuration: "5m"
+  - type: "MemoryPressure"
+    status: "True"
+    minimumDuration: "10m"
+  - type: "DiskPressure"
+    status: "True"
+    minimumDuration: "5m"
+
+# Drain operation settings
+drainSettings:
+  # Maximum grace period for pod termination
+  maxGracePeriod: "8m"
+  # Buffer time added to grace period
+  evictionHeadroom: "2m"
+  # Timeout for drain operations
+  drainBuffer: "15m"
+  # Skip cordoning the node before draining
+  skipCordon: false
+  # Whether to evict DaemonSet pods
+  evictDaemonSetPods: false
+  # Whether to evict pods with local storage
+  evictLocalStoragePods: false
+  # Whether to force eviction of unreplicated pods
+  evictUnreplicatedPods: false
+
+# REST API configuration
+api:
+  enabled: true
+  port: 8080
+  cors:
+    enabled: true
+    allowedOrigins:
+      - "*"
+    allowedMethods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+    allowedHeaders:
+      - "Content-Type"
+      - "Authorization"
+
+# Prometheus metrics configuration
+metrics:
+  enabled: true
+  port: 9090
+  path: "/metrics"
+
+# Dry run mode - don't actually drain nodes
+dryRun: false 

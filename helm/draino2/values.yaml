@@ -1,0 +1,120 @@
+# Default values for draino2
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: nfelsen/draino2
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+  metricsPort: 9090
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Configuration for draino2
+config:
+  # Label triggers that will cause a node to be drained
+  labelTriggers:
+    - key: "maintenance"
+      value: "true"
+    - key: "decommission"
+      value: "true"
+
+  # Labels that will prevent a node from being drained
+  excludeLabels:
+    - key: "critical"
+      value: "true"
+
+  # Node conditions that will trigger automatic draining
+  nodeConditions:
+    - type: "OutOfDisk"
+      status: "True"
+      minimumDuration: "5m"
+    - type: "MemoryPressure"
+      status: "True"
+      minimumDuration: "10m"
+
+  # Drain operation settings
+  drainSettings:
+    maxGracePeriod: "8m"
+    evictionHeadroom: "2m"
+    drainBuffer: "15m"
+    skipCordon: false
+    evictDaemonSetPods: false
+    evictLocalStoragePods: false
+    evictUnreplicatedPods: false
+
+  # REST API configuration
+  api:
+    enabled: true
+    port: 8080
+    cors:
+      enabled: true
+      allowedOrigins:
+        - "*"
+      allowedMethods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+      allowedHeaders:
+        - "Content-Type"
+        - "Authorization"
+
+  # Prometheus metrics configuration
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+
+  # Dry run mode - don't actually drain nodes
+  dryRun: false 
